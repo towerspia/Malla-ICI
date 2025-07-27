@@ -1,1 +1,85 @@
+<!DOCTYPE html><html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Malla Interactiva - Ingeniería Civil Industrial</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 30px;
+    }
+    .course {
+      padding: 10px;
+      background: #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      text-align: center;
+    }
+    .aprobado { background: #c8e6c9; }
+    .cursando { background: #fff9c4; }
+    .pendiente { background: #ffcdd2; }
+    .bloqueado { background: #eee; color: #aaa; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>Malla Interactiva - Ing. Civil Industrial</h1>
+  <div id="grid" class="grid"></div>  <script>
+    const cursos = [
+      { codigo: "ICI101", nombre: "Álgebra I", prereqs: [] },
+      { codigo: "ICI102", nombre: "Intro a la Ingeniería", prereqs: [] },
+      { codigo: "ICI103", nombre: "Química General", prereqs: [] },
+      { codigo: "ICI201", nombre: "Álgebra Lineal", prereqs: ["ICI101"] },
+      { codigo: "ICI202", nombre: "Cálculo I", prereqs: ["ICI101"] },
+      { codigo: "ICI203", nombre: "Física I", prereqs: ["ICI101"] },
+      { codigo: "ICI301", nombre: "Estadística", prereqs: ["ICI201"] },
+      { codigo: "ICI302", nombre: "Cálculo II", prereqs: ["ICI202"] },
+      { codigo: "ICI303", nombre: "Economía", prereqs: ["ICI102"] },
+    ];
 
+    const estados = {}; // Guardamos el estado: aprobado, cursando, pendiente
+
+    const grid = document.getElementById("grid");
+
+    function puedeCursar(curso) {
+      return curso.prereqs.every(c => estados[c] === "aprobado");
+    }
+
+    function renderCursos() {
+      grid.innerHTML = "";
+      cursos.forEach(curso => {
+        let estado = estados[curso.codigo] || "pendiente";
+        let habilitado = puedeCursar(curso) || estado === "aprobado" || estado === "cursando";
+
+        const div = document.createElement("div");
+        div.className = `course ${estado}`;
+        if (!habilitado) div.classList.add("bloqueado");
+
+        div.textContent = curso.nombre;
+        div.onclick = () => {
+          if (!habilitado) return;
+          if (estado === "pendiente") estado = "cursando";
+          else if (estado === "cursando") estado = "aprobado";
+          else estado = "pendiente";
+
+          estados[curso.codigo] = estado;
+          renderCursos();
+        };
+
+        grid.appendChild(div);
+      });
+    }
+
+    renderCursos();
+  </script></body>
+</html>
